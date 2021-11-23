@@ -1,6 +1,39 @@
 'use strict';
 
+function Food() {
+	this.getPrice = function() {
+	    if (this instanceof Hamburger) {
+      	    return Hamburger.SIZES[this.getSize()].price + Hamburger.STUFFINGS[this.getStuffing()].price;
+        }
+	    if (this instanceof Salad) {
+      	    return Salad.TYPES[this.getType()].price * this.getWeight() / 100;
+        }
+	    if (this instanceof Drink) {
+      	    return Drink.TYPES[this.getType()].price;
+        }
+	}
+  
+    this.getCalories = function() {
+  	    if (this instanceof Hamburger) {
+      	    return Hamburger.SIZES[this.getSize()].calories + Hamburger.STUFFINGS[this.getStuffing()].calories;
+        }
+	    if (this instanceof Salad) {
+      	    return Salad.TYPES[this.getType()].calories * this.getWeight() / 100;
+        }
+	    if (this instanceof Drink) {
+      	    return Drink.TYPES[this.getType()].calories;
+        }
+    }
+    
+	if (this instanceof Salad || this instanceof Drink) {
+  	    this.getType = function() {
+    	    return this._type;
+        }
+    }
+}
+
 function Hamburger(size, stuffing) {	
+	Food.call(this);
     this._size = size;
     this._stuffing = stuffing;
 } 
@@ -38,19 +71,14 @@ Hamburger.STUFFINGS = {
 }
 
 Hamburger.prototype.getSize = function() {
-	return this._size;
+    return this._size;
 }
 Hamburger.prototype.getStuffing = function() {
-	return this._stuffing;
-}
-Hamburger.prototype.calculatePrice = function() {
-    return Hamburger.SIZES[this.getSize()].price + Hamburger.STUFFINGS[this.getStuffing()].price;
-}
-Hamburger.prototype.calculateCalories = function() {
-    return Hamburger.SIZES[this.getSize()].calories + Hamburger.STUFFINGS[this.getStuffing()].calories;
+    return this._stuffing;
 }
 
 function Salad(type, weight) {
+	Food.call(this);
     this._type = type;
     this._weight = parseInt(weight);
 }
@@ -69,20 +97,12 @@ Salad.TYPES = {
     }
 }
 
-Salad.prototype.getType = function() {
-	return this._type;
-}
 Salad.prototype.getWeight = function() {
 	return this._weight;
 }
-Salad.prototype.calculatePrice = function() {
-    return Salad.TYPES[this.getType()].price * this.getWeight() / 100;;
-}
-Salad.prototype.calculateCalories = function() {
-	return Salad.TYPES[this.getType()].calories * this.getWeight() / 100;
-}
 
 function Drink(type) {
+	Food.call(this);
     this._type = type;
 }
 
@@ -98,16 +118,6 @@ Drink.TYPES = {
         price: 80,
         calories: 20
     }
-}
-
-Drink.prototype.getType = function() {
-	return this._type;
-}
-Drink.prototype.calculatePrice = function() {
-    return Drink.TYPES[this.getType()].price;
-}
-Drink.prototype.calculateCalories = function() {
-	return Drink.TYPES[this.getType()].calories;
 }
 
 function Order() {
@@ -133,18 +143,18 @@ Order.prototype.removeItem = function(item) {
     }
 }
 
-Order.prototype.calculatePrice = function() {
+Order.prototype.getTotalPrice = function() {
     const totalPrice = this._items.reduce((acc, currentItem) => {
-        acc += currentItem.calculatePrice();
+        acc += currentItem.getPrice();
         return acc;
     }, 0);
     console.log(`Стоимость заказа: ${totalPrice} тугриков`);
     return totalPrice;
 }
 
-Order.prototype.calculateCalories = function() {
+Order.prototype.getTotalCalories = function() {
 	const totalCalories = this._items.reduce((acc, currentItem) => {
-        acc += currentItem.calculateCalories();
+        acc += currentItem.getCalories();
         return acc;
     }, 0);
     console.log(`Калорийность заказа: ${totalCalories} калорий`);
@@ -156,7 +166,6 @@ const smallHamburger = new Hamburger(Hamburger.SIZE_SMALL, Hamburger.STUFFING_CH
 const caesarSalad = new Salad(Salad.TYPE_CAESAR, '150g');
 const coffee = new Drink(Drink.TYPE_COFFEE);
 
-
 const order = new Order();
 order.addItem(bigHamburger);
 order.addItem(smallHamburger);
@@ -166,7 +175,7 @@ order.addItem(coffee);
 
 order.removeItem(smallHamburger);
 
-order.calculatePrice(); // 110 + 60 + 150 + 80 = 400
-order.calculateCalories(); // 60 + 40 + 30 + 20 = 150
+order.getTotalPrice(); // 110 + 60 + 150 + 80 = 400
+order.getTotalCalories(); // 60 + 40 + 30 + 20 = 150
 
 order.pay();
