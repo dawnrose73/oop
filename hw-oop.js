@@ -2,33 +2,15 @@
 
 function Food() {
 	this.getPrice = function() {
-	    if (this instanceof Hamburger) {
-      	    return Hamburger.SIZES[this.getSize()].price + Hamburger.STUFFINGS[this.getStuffing()].price;
-        }
-	    if (this instanceof Salad) {
-      	    return Salad.TYPES[this.getType()].price * this.getWeight() / 100;
-        }
-	    if (this instanceof Drink) {
-      	    return Drink.TYPES[this.getType()].price;
-        }
+	    return this._price;
 	}
   
     this.getCalories = function() {
-  	    if (this instanceof Hamburger) {
-      	    return Hamburger.SIZES[this.getSize()].calories + Hamburger.STUFFINGS[this.getStuffing()].calories;
-        }
-	    if (this instanceof Salad) {
-      	    return Salad.TYPES[this.getType()].calories * this.getWeight() / 100;
-        }
-	    if (this instanceof Drink) {
-      	    return Drink.TYPES[this.getType()].calories;
-        }
+  		return this._calories;
     }
     
-	if (this instanceof Salad || this instanceof Drink) {
-  	    this.getType = function() {
-    	    return this._type;
-        }
+  	this.getType = function() {
+    	return this._type;
     }
 }
 
@@ -36,6 +18,8 @@ function Hamburger(size, stuffing) {
 	Food.call(this);
     this._size = size;
     this._stuffing = stuffing;
+    this._price = this.calculatePrice();
+    this._calories = this.calculateCalories();
 } 
 
 Hamburger.SIZE_SMALL = 'SIZE_SMALL';
@@ -71,16 +55,24 @@ Hamburger.STUFFINGS = {
 }
 
 Hamburger.prototype.getSize = function() {
-    return this._size;
+  return this._size;
 }
 Hamburger.prototype.getStuffing = function() {
-    return this._stuffing;
+  return this._stuffing;
+}
+Hamburger.prototype.calculatePrice = function() {
+	return Hamburger.SIZES[this.getSize()].price + Hamburger.STUFFINGS[this.getStuffing()].price;
+}
+Hamburger.prototype.calculateCalories = function() {
+	return Hamburger.SIZES[this.getSize()].calories + Hamburger.STUFFINGS[this.getStuffing()].calories;
 }
 
 function Salad(type, weight) {
 	Food.call(this);
     this._type = type;
     this._weight = parseInt(weight);
+    this._price = this.calculatePrice();
+    this._calories = this.calculateCalories();
 }
 
 Salad.TYPE_CAESAR = 'CAESAR';
@@ -100,10 +92,18 @@ Salad.TYPES = {
 Salad.prototype.getWeight = function() {
 	return this._weight;
 }
+Salad.prototype.calculatePrice = function() {
+	return Salad.TYPES[this.getType()].price * this.getWeight() / 100;
+}
+Salad.prototype.calculateCalories = function() {
+	return Salad.TYPES[this.getType()].calories * this.getWeight() / 100;
+}
 
 function Drink(type) {
 	Food.call(this);
     this._type = type;
+    this._price = this.calculatePrice();
+    this._calories = this.calculateCalories();
 }
 
 Drink.TYPE_COLA = 'COLA';
@@ -118,6 +118,13 @@ Drink.TYPES = {
         price: 80,
         calories: 20
     }
+}
+
+Drink.prototype.calculatePrice = function() {
+	return Drink.TYPES[this.getType()].price;
+}
+Drink.prototype.calculateCalories = function() {
+	return Drink.TYPES[this.getType()].calories;
 }
 
 function Order() {
